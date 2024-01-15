@@ -77,7 +77,7 @@ logerr() (
 # Arguments: host
 pingcheck() (
   log 1 "Pinging $1..."
-  if ! ping -c 1 "$1" >/dev/null 2>&1; then
+  if ! ping -c 3 "$1" >/dev/null 2>&1; then
     if ! [ -f "$Working_Dir/$1" ]; then 
       printf "[%s]:\n%s is DOWN!\n" "$(logdate)" "$1"
       logdate > "$Working_Dir/$1" || exit 1
