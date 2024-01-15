@@ -26,7 +26,7 @@ set -u
 LC_ALL=C
 Prgnam="$(basename "$0")"
 Base_Dir="${XDG_RUNTIME_DIR:-$HOME}"
-Working_Dir="$Base_Dir/$Prgnam"
+Working_Dir="$Base_Dir/.$Prgnam"
 PID_File="$Working_Dir/$Prgnam.pid"
 Verbose="${Verbose:-0}"
 
@@ -79,14 +79,16 @@ pingcheck() (
   log 1 "Pinging $1..."
   if ! ping -c 1 "$1" >/dev/null 2>&1; then
     if ! [ -f "$Working_Dir/$1" ]; then 
-      printf "%s is DOWN at %s\n" "$1" "$(logdate)"
-      touch "$Working_Dir/$1" || exit 1
+      printf "[%s]:\n%s is DOWN!\n" "$(logdate)" "$1"
+      logdate > "$Working_Dir/$1" || exit 1
       return 1
     fi
   else
     if [ -f "$Working_Dir/$1" ]; then
-      printf "%s is UP at %s\n" "$1" "$(logdate)"
+      printf "[%s]:\n%s is UP!\n" "$(logdate)" "$1"
+      printf "(Down since: %s)\n" "$(cat "$Working_Dir/$1")"
       rm "$Working_Dir/$1" || exit 1
+      return 1
     fi
   fi
 )
@@ -103,8 +105,8 @@ main() {
   shift "$((OPTIND - 1))"
 
   if [ -r "$PID_File" ]; then
-    logerr "Process $(cat "$PID_File") already running?"
-    exit 1
+    logerr "Process $(cat "$PID_File") already running"
+    exit
   fi
 
   mkdir -p "$Working_Dir" || exit 1
