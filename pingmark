@@ -116,12 +116,8 @@ main() {
   mkdir -p "$Working_Dir" || exit 1
   printf %s\\n "$$" > "$PID_File" || exit 1
 
-  if [ "$#" -eq 0 ]; then
-    if [ ! -t 0 ]; then 
-      set -- $(cat)
-    else
-      logerr "No hosts provided"
-    fi
+  if [ ! -t 0 ]; then 
+    set -- $@ $(cat)
   fi
 
   # shellcheck disable=SC2068
