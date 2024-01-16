@@ -82,6 +82,8 @@ pingcheck() (
       printf "[%s]:\n%s is DOWN!\n" "$(logdate)" "$1"
       logdate > "$Working_Dir/$1" || exit 1
       return 1
+    else
+      log 1 "$1 is DOWN!"
     fi
   else
     if [ -f "$Working_Dir/$1" ]; then
@@ -89,6 +91,8 @@ pingcheck() (
       printf "(Down since: %s)\n" "$(cat "$Working_Dir/$1")"
       rm "$Working_Dir/$1" || exit 1
       return 1
+    else
+      log 1 "$1 is UP!"
     fi
   fi
 )
@@ -111,6 +115,14 @@ main() {
 
   mkdir -p "$Working_Dir" || exit 1
   printf %s\\n "$$" > "$PID_File" || exit 1
+
+  if [ "$#" -eq 0 ]; then
+    if [ ! -t 0 ]; then 
+      set -- $(cat)
+    else
+      logerr "No hosts provided"
+    fi
+  fi
 
   # shellcheck disable=SC2068
   for s in $@; do
