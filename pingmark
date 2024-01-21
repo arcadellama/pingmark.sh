@@ -101,6 +101,11 @@ main() {
   retval=0
   bg_pid=""
 
+  if ! command -v ping >/dev/null 2>&1; then
+    logerr "ping not found in PATH"
+    exit 1
+  fi
+
   while getopts 'v' opt; do
     case "${opt:-}" in
       v) Verbose="$((Verbose+1))" ;;
